@@ -38,7 +38,8 @@ class _OneTappHomeState extends State<OneTappHome> {
       'subtitle': "Software Developer",
       'views': 24,
       'shares': 8,
-      'lastUsed': "2h ago"
+      'lastUsed': "2h ago",
+      'quantity': 1,
     },
     {
       'initial': 'P',
@@ -46,7 +47,8 @@ class _OneTappHomeState extends State<OneTappHome> {
       'subtitle': "Freelance Designer",
       'views': 12,
       'shares': 3,
-      'lastUsed': "1d ago"
+      'lastUsed': "1d ago",
+      'quantity': 1,
     },
     {
       'initial': 'C',
@@ -54,7 +56,8 @@ class _OneTappHomeState extends State<OneTappHome> {
       'subtitle': "Tech Consultant",
       'views': 8,
       'shares': 2,
-      'lastUsed': "3d ago"
+      'lastUsed': "3d ago",
+      'quantity': 50, // <--- 50 copies
     },
   ];
 
@@ -154,89 +157,108 @@ class _OneTappHomeState extends State<OneTappHome> {
           ),
           // Card List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: cards.length,
-              itemBuilder: (context, index) {
-                final card = cards[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                  color: cardColor,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => VirtualCard(card: card),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          // Avatar
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundColor: const Color(0xFF7B61FF),
-                            child: Text(
-                              card['initial'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
+            child: cards.isEmpty
+                ? Center(
+                    child: Text(
+                      'No cards yet. Tap "+ Add New Card" to get started!',
+                      style: TextStyle(color: subtitleColor, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    itemCount: cards.length,
+                    itemBuilder: (context, index) {
+                      final card = cards[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: isDark ? 0 : 4,
+                          shadowColor: isDark ? Colors.transparent : Colors.black12,
+                          color: cardColor,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => VirtualCard(card: card),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Avatar
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: const Color(0xFF7B61FF),
+                                    child: Text(
+                                      card['initial'],
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  // Card Info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          card['title'],
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          card['subtitle'],
+                                          style: TextStyle(
+                                            color: subtitleColor,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.remove_red_eye, size: 16, color: statsColor),
+                                            const SizedBox(width: 4),
+                                            Text("${card['views']} views", style: TextStyle(color: statsColor, fontSize: 13)),
+                                            const SizedBox(width: 12),
+                                            Icon(Icons.share, size: 16, color: statsColor),
+                                            const SizedBox(width: 4),
+                                            Text("${card['shares']} shares", style: TextStyle(color: statsColor, fontSize: 13)),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.access_time, size: 16, color: statsColor),
+                                            const SizedBox(width: 4),
+                                            Text("Last used: ${card['lastUsed']}", style: TextStyle(color: statsColor, fontSize: 13)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          // Card Info
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  card['title'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                    color: textColor,
-                                  ),
-                                ),
-                                Text(
-                                  card['subtitle'],
-                                  style: TextStyle(
-                                    color: subtitleColor,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(Icons.remove_red_eye, size: 16, color: statsColor),
-                                    const SizedBox(width: 4),
-                                    Text("${card['views']} views", style: TextStyle(color: statsColor, fontSize: 13)),
-                                    const SizedBox(width: 12),
-                                    Icon(Icons.share, size: 16, color: statsColor),
-                                    const SizedBox(width: 4),
-                                    Text("${card['shares']} shares", style: TextStyle(color: statsColor, fontSize: 13)),
-                                    const SizedBox(width: 12),
-                                    Text("Last used: ${card['lastUsed']}", style: TextStyle(color: statsColor, fontSize: 13)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       );

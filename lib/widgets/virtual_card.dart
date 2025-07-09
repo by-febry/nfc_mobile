@@ -208,6 +208,16 @@ class VirtualCard extends StatelessWidget {
                     textColor: textColor,
                     subtitleColor: subtitleColor,
                   ),
+                  if (card['quantity'] != null && card['quantity'] > 1) ...[
+                    const SizedBox(height: 12),
+                    DetailRow(
+                      icon: Icons.copy,
+                      label: 'Quantity',
+                      value: '${card['quantity']}',
+                      textColor: textColor,
+                      subtitleColor: subtitleColor,
+                    ),
+                  ],
                 ],
               ),
             ),
