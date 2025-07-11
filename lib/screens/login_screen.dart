@@ -23,21 +23,107 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    // Check for empty fields
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both email and password.';
+        _isLoading = false;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 1000));
 
-    widget.onLogin(email, password);
+    // Demo: check for correct credentials
+    if (widget.onLogin != null) {
+      // We'll assume the parent will only call onLogin if correct, so let's check here
+      if (email == 'admin@onetapp.com' && password == 'password123') {
+        widget.onLogin(email, password);
+        setState(() {
+          _errorMessage = null;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Invalid email or password. Use: admin@onetapp.com / password123';
+        });
+      }
+    }
 
     setState(() {
       _isLoading = false;
+    });
+  }
+
+  void _showForgotPasswordDialog() async {
+    String enteredEmail = '';
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Forgot Password'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(labelText: 'Enter your email'),
+            onChanged: (val) => enteredEmail = val,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Check your email'),
+                    content: const Text(
+                      'If an account exists for this email, you’ll receive reset instructions. (Demo: No real email sent.)',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(() {
+      if (_errorMessage != null) {
+        setState(() {
+          _errorMessage = null;
+        });
+      }
+    });
+    _passwordController.addListener(() {
+      if (_errorMessage != null) {
+        setState(() {
+          _errorMessage = null;
+        });
+      }
     });
   }
 
@@ -58,8 +144,15 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Logo at the top
+                Image.asset(
+                  'assets/img/logo.png',
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 24),
                 const Text(
-                  'Welcome Back',
+                  'Welcome',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -109,6 +202,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         obscureText: true,
                       ),
+                      // Forgot password link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _showForgotPasswordDialog,
+                          child: const Text('Forgot password?'),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       if (_isLoading)
                         const CircularProgressIndicator()
@@ -133,29 +234,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text('Login'),
                           ),
                         ),
-                      if (_errorMessage != null) ...[
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.shade200),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.error, color: Colors.red.shade600, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _errorMessage!,
-                                  style: TextStyle(color: Colors.red.shade700, fontSize: 14),
-                                ),
-                              ),
-                            ],
+                      if (_errorMessage != null && _errorMessage!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red.shade700, fontSize: 14),
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                      ],
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(12),

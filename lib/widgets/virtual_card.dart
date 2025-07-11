@@ -1,9 +1,39 @@
 import 'package:flutter/material.dart';
 import '../widgets/detail_row.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class VirtualCard extends StatelessWidget {
   final Map<String, dynamic> card;
   const VirtualCard({required this.card, super.key});
+
+  void _mockTapToShare(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return _ShareNfcModal();
+      },
+    );
+    // Wait 2 seconds, then show success
+    await Future.delayed(const Duration(seconds: 2));
+    Navigator.of(context).pop(); // Dismiss modal
+    // Show success snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green),
+            SizedBox(width: 8),
+            Text('Card shared!'),
+          ],
+        ),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +151,74 @@ class VirtualCard extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Share card functionality
+                      // Show QR code dialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                          elevation: 8,
+                          backgroundColor: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.qr_code_2, size: 40, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Share via QR Code',
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Scan this code to view my card',
+                                  style: TextStyle(fontSize: 15, color: Colors.black54),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.07),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.all(8),
+                                  child: QrImageView(
+                                    data: 'https://onetapfrontend.vercel.app',
+                                    version: QrVersions.auto,
+                                    size: 180.0,
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                    ),
+                                    child: const Text('Close', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.share),
                     label: const Text('Share Card'),
@@ -141,6 +238,7 @@ class VirtualCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       // NFC emulation functionality
+                      _mockTapToShare(context);
                     },
                     icon: const Icon(Icons.nfc),
                     label: const Text('Tap to Share'),
@@ -223,6 +321,42 @@ class VirtualCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ShareNfcModal extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: theme.dialogBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.nfc, size: 48, color: theme.colorScheme.primary),
+          const SizedBox(height: 16),
+          const Text(
+            'Ready to share!\nHold your phone near another device...',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 24),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }

@@ -135,26 +135,6 @@ class _OneTappHomeState extends State<OneTappHome> {
               ],
             ),
           ),
-          // Add New Card Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7B61FF),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                child: const Text("+ Add New Card"),
-              ),
-            ),
-          ),
           // Card List
           Expanded(
             child: cards.isEmpty
